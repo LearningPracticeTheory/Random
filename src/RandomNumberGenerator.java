@@ -7,11 +7,14 @@ import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 public class RandomNumberGenerator extends JFrame {
 
@@ -42,6 +45,7 @@ public class RandomNumberGenerator extends JFrame {
 		this.setLayout(new BorderLayout());
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		new MyDialog(this, "Enter", true);
 		southPanel();
 		centerPanel();
 		eastPanel();
@@ -81,6 +85,54 @@ public class RandomNumberGenerator extends JFrame {
 //		panelSouth.add(mark);
 		panelSouth.add(log);
 		panelSouth.add(clear);
+	}
+	
+	private class MyDialog extends JDialog {
+
+		private static final long serialVersionUID = 1L;
+		JButton jbConfirm = new JButton("Confirm");
+		JButton jbCancel = new JButton("Cancel");
+		JLabel jlCourse = new JLabel("Course:");
+		JLabel jlNumber = new JLabel("Number:");
+		JTextField jtfCourse = new JTextField();
+		JTextField jtfNumber = new JTextField();
+		JPanel jpCenter = new JPanel();
+		JPanel jpCenterLeft = new JPanel();
+		JPanel jpCenterRight = new JPanel();
+		JPanel jpSouth = new JPanel();
+		
+		MyDialog(JFrame frame, String title, boolean modal) {
+			super(frame, title, modal);
+			this.setSize(200, 150);
+			this.setLocationRelativeTo(null);
+			this.setDefaultCloseOperation(MyDialog.DISPOSE_ON_CLOSE);
+			centerPanel();
+			southPanel();
+			this.setLayout(new BorderLayout());
+			this.add(jpCenter, BorderLayout.CENTER);
+			this.add(jpSouth, BorderLayout.SOUTH);
+			this.setVisible(true);
+		}
+		
+		private void centerPanel() {
+			jpCenter.setLayout(new BorderLayout());
+			jpCenterLeft.setLayout(new GridLayout(2, 1));
+			jpCenterRight.setLayout(new GridLayout(2, 1));
+			
+			jpCenterLeft.add(jlCourse);
+			jpCenterLeft.add(jlNumber);
+			jpCenterRight.add(jtfCourse);
+			jpCenterRight.add(jtfNumber);
+			
+			jpCenter.add(jpCenterLeft, BorderLayout.WEST);
+			jpCenter.add(jpCenterRight, BorderLayout.CENTER);
+		}
+		
+		private void southPanel() {
+			jpSouth.add(jbConfirm);
+			jpSouth.add(jbCancel);
+		}
+		
 	}
 	
 }
