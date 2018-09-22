@@ -4,6 +4,17 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -28,6 +39,7 @@ implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private static final int INITIALIZED_ENTER = 0;
 	private static final int SHOW_RANDOM_NUM = 1;
+	private static final int LOG_MODEL = 2;
 	private static final int WIDTH = 400;
 	private static final int HEIGHT = 500;
 	String title = "Random";
@@ -39,13 +51,24 @@ implements ActionListener {
 	JButton jbRandom = new JButton("random");
 //	JButton mark = new JButton("mark");
 	JButton jbLog = new JButton("log");
+	JButton jbShowLog = new JButton("show log");
 	JButton jbClear = new JButton("clear");
+	JRadioButton jrbSelectAll = new JRadioButton("Select All");
 	JTextArea jtaCenter = new JTextArea();
 	List<JCheckBox> boxesList = new LinkedList<>();
+/*	
+* BUG: the same number of elements but different choice/mark will not successfully log
+*/
+
+//	private static int oldBoxesSize = 0; //No need these variable to record the size & numbers
+//	private static int selectNums = 0; //which has some bug and hard to debug
+//	List<Boolean> selectIndex = new ArrayList<>(); //but use tmpFile can easily solved the problem
 	
 	private static Random r = new Random();
 	
-//	private static MyDialog dialog = null;
+	private static MyDialog showLogDialog = null;
+	
+	private boolean logDialogIsActive = false;
 
 	public static void main(String args[]) {
 		new RandomNumberGenerator().launchFrame();
@@ -79,7 +102,21 @@ implements ActionListener {
 		this.getContentPane().setBackground(color);
 		this.setLayout(new BorderLayout());
 		this.setLocationRelativeTo(null);
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+//		this.setDefaultCloseOperation(EXIT_ON_CLOSE); //just close is not enough
+		
+		this.addWindowListener(new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent e) { //when click X, log from tmpFile -> logFile
+				logPerformed(true); //which means running once, truly log once when exist
+				tmpFile.delete();
+//				tmpFile.deleteOnExit(); //file delete after VM exist/terminates
+				super.windowClosing(e);
+				System.exit(0);
+			}
+			
+		});
+		
 		eastPanel();
 		centerPanel();
 		southPanel();
@@ -87,6 +124,10 @@ implements ActionListener {
 		this.add(panelSouth, BorderLayout.SOUTH);
 		
 		jbRandom.addActionListener(this);
+		jbClear.addActionListener(this);
+		jbLog.addActionListener(this);
+		jbShowLog.addActionListener(this);
+		jrbSelectAll.addActionListener(this);
 		
 		this.setVisible(true);
 		
@@ -96,7 +137,22 @@ implements ActionListener {
 		if(model == INITIALIZED_ENTER) {
 			new MyDialog(this, "Enter", true); //true -> JFrame will display after this dialog
 		} else if(model == SHOW_RANDOM_NUM) {
-			new MyDialog(this, false, "Random_Number");
+			new MyDialog(this, true, "Random_Number");
+		} else if(model == LOG_MODEL) {
+			/*
+			if(showLogDialog != null && showLogDialog.isActive()) {
+				return;
+			} else if(showLogDialog != null && !showLogDialog.isActive()) {
+				showLogDialog = null;
+			}
+			*/
+			if(!logDialogIsActive) {
+				showLogDialog = null;
+			}
+			if(showLogDialog == null) {
+				showLogDialog = new MyDialog(false, this, "Log_History");
+				logDialogIsActive = true;
+			} 
 		}
 	}
 	
@@ -106,7 +162,7 @@ implements ActionListener {
 //sort from up to down
 		panelEastCenter.setLayout(new BoxLayout(panelEastCenter, BoxLayout.PAGE_AXIS));
 		
-		panelEastUp.add(new JRadioButton("Select All"));
+		panelEastUp.add(jrbSelectAll);
 		
 		for(int i = 0; i < boxesList.size(); i++) {
 			JCheckBox tmpBox = boxesList.get(i);
@@ -120,6 +176,7 @@ implements ActionListener {
 	
 	private void centerPanel() { //add directly without support by JPanel
 		add(new JScrollPane(jtaCenter), BorderLayout.CENTER);
+		jtaCenter.setEditable(false); //!edit
 		jtaCenter.setFont(new Font("Cataneo BT", Font.BOLD, 20));
 		jtaCenter.setText("Course:" + course + "\n");
 		jtaCenter.selectAll();
@@ -131,8 +188,11 @@ implements ActionListener {
 		panelSouth.add(jbRandom);
 //		panelSouth.add(mark);
 		panelSouth.add(jbLog);
+		panelSouth.add(jbShowLog);
 		panelSouth.add(jbClear);
 	}
+	
+	
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -140,10 +200,108 @@ implements ActionListener {
 //System.out.println("random");
 			showDialog(SHOW_RANDOM_NUM);
 		} else if(e.getSource().equals(jbLog)) {
-			
-		} else if(e.getSource().equals(jbClear)) {
-			
+			logPerformed(false);
+		} else if(e.getSource().equals(jbShowLog)) {
+			showDialog(LOG_MODEL);
+		} else if(e.getSource().equals(jbClear)) { //without remove boxesList, for which using fall back
+			clearPerformed();
+		} else if(e.getSource().equals(jrbSelectAll)) {
+			selectAllPerformed();
 		}
+	}
+	
+	private void selectAllPerformed() {
+		for(int i = 0; i < boxesList.size(); i++) {
+			if(jrbSelectAll.isSelected()) {
+				boxesList.get(i).setSelected(true);
+			} else {
+				boxesList.get(i).setSelected(false);
+			}
+		}
+	}
+	
+	private void clearPerformed() {
+		jtaCenter.setText("Course:" + course + "\n");
+//		oldBoxesSize = 0;
+		boxesList.clear();
+		panelEastCenter.setVisible(false);
+		panelEastCenter.removeAll();
+		panelEastCenter.setVisible(true);
+	}
+	
+	File file = new File("history_of_numbers.log");
+	File tmpFile = new File("tmp.log");
+	BufferedWriter bw = null;
+	SimpleDateFormat sdf = new SimpleDateFormat("YYYY/MM/dd hh:mm:ss");
+	
+	private void logPerformed(boolean flag) { //false: default -> tmpFile
+											//true: tmpFile -> file(history file);	
+		/*
+		if(boxesList.size() == oldBoxesSize) {
+			return; //Now use tmpFile to log, refresh every time,
+		} //so solve the problem like: same 
+		*/
+		if(!file.exists()) { //create once
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		if(!tmpFile.exists()) { //create every time when run the program
+			try {
+				tmpFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		try {
+			if(flag) {
+				bw = new BufferedWriter(new FileWriter(file, true)); //append
+			} else {
+				bw = new BufferedWriter(new FileWriter(tmpFile)); //!append -> refresh every time when log
+			}
+//System.out.println(date);
+			bw.write("Cource:" + course + " at: " + currentDate());
+			bw.newLine();
+			
+			for(int i = 0; i < boxesList.size(); i++) {
+				JCheckBox jcb = boxesList.get(i);
+				if(jcb.isSelected()) {
+					bw.write(jcb.getText() + "+");
+				} else {
+					bw.write(jcb.getText());
+				}
+				bw.newLine();
+			}
+			
+//			bw.newLine();
+			bw.write("---------------------------------------------------");
+			bw.newLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if(bw != null) {
+				try {
+					bw.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+//		oldBoxesSize = boxesList.size();
+		
+		if(logDialogIsActive) {
+			showLogDialog.readPerformed();
+		}
+		
+	}
+	
+	public String currentDate() {
+		return sdf.format(new Date());
 	}
 	
 	String course = null;
@@ -166,7 +324,7 @@ implements ActionListener {
 		JPanel jpCenterRight = new JPanel();
 		JPanel jpSouth = new JPanel();
 		
-		MyDialog(RandomNumberGenerator frame, String title, boolean modal) {
+		public MyDialog(JFrame frame, String title, boolean modal) {
 			super(frame, title, modal);
 			this.setSize(200, 150);
 			this.setLocationRelativeTo(null);
@@ -192,7 +350,7 @@ implements ActionListener {
 		JButton jbNumCancel = new JButton("Cancel");
 		private int randomNum;
 		
-		MyDialog(RandomNumberGenerator frame, boolean modal, String title) {
+		public MyDialog(JFrame frame, boolean modal, String title) {
 			super(frame, title, modal);
 			this.setSize(250, 200);
 			this.setLocationRelativeTo(null);
@@ -219,6 +377,66 @@ implements ActionListener {
 			this.setVisible(true);
 		}
 		
+		JTextArea jtaLog = new JTextArea();
+		BufferedReader br = null;
+		
+		public MyDialog(boolean modal, JFrame frame, String title) {
+			super(frame, title, modal);
+			this.setSize(500, 400);
+			this.setLocationRelativeTo(null);
+//			this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+			
+			this.addWindowListener(new WindowAdapter() {
+
+				@Override
+				public void windowClosing(WindowEvent e) { //click X at the top-right corner
+					logDialogIsActive = false;
+//System.out.println(logDialogIsActive);
+					super.windowClosed(e);
+				}
+				
+			});
+			
+			jtaLog.setEditable(false);
+			jtaLog.setFont(new Font("Cataneo BT", Font.ITALIC, 15));
+			this.add(new JScrollPane(jtaLog));
+			
+			readPerformed();
+			
+			this.setVisible(true);
+		}
+
+		public void readPerformed() {
+			String str = null;
+			
+			if(!tmpFile.exists()) {
+				try {
+					tmpFile.createNewFile();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			try {
+				br = new BufferedReader(new FileReader(tmpFile));
+				jtaLog.setText("");
+				while((str = br.readLine()) != null) {
+					jtaLog.append(str + "\n");
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				if(br != null) {
+					try {
+						br.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
 		
 		private void centerPanel() {
 			jpCenter.setLayout(new BorderLayout());
