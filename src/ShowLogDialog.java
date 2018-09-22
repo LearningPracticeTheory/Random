@@ -14,8 +14,11 @@ public class ShowLogDialog extends MyDialog {
 
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * Display record text
+	 */
 	JTextArea jtaLog = new JTextArea();
-	BufferedReader br = null;
+	private BufferedReader br = null;
 	
 	public ShowLogDialog(RandomNumberGenerator frame, String title, boolean modal) {
 		super(frame, title, modal);
@@ -48,6 +51,9 @@ public class ShowLogDialog extends MyDialog {
 		this.setVisible(true);
 	}
 
+	/**
+	 * Read data from log file
+	 */
 	public void readPerformed() {
 		String str = null;
 		

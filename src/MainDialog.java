@@ -72,10 +72,16 @@ public class MainDialog extends MyDialog {
 
 /*JButton add keyboard shortcuts*/
 	//i.
+		/**
+		 * Random button associated with Alt+1
+		 */
 		jbRandom.setMnemonic(KeyEvent.VK_1); //Alt + 1
 		
 	//ii.
 		/*This method is now obsolete*/
+		/**
+		 * Log button associated with VK_2
+		 */
 		jbLog.registerKeyboardAction(this, //2
 				KeyStroke.getKeyStroke(KeyEvent.VK_2, 0), //0 means only single key
 				JComponent.WHEN_IN_FOCUSED_WINDOW); //when in the focused window

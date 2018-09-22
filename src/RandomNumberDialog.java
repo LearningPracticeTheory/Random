@@ -20,6 +20,10 @@ public class RandomNumberDialog extends MyDialog {
 	
 	JLabel jlNum = new JLabel(); //display better than JTF
 	JPanel jpSouthButtons = new JPanel();
+	
+	/**
+	 * Mark button for numbers
+	 */
 	JButton jbNumMark = new JButton("2/Mark");
 	
 	private int randomNum;
@@ -59,6 +63,9 @@ public class RandomNumberDialog extends MyDialog {
 		jbCancel.addActionListener(this);
 		jbNumMark.addActionListener(this);
 		
+		/**
+		 * Confirm button associated with VK_1
+		 */
 		jbConfirm.registerKeyboardAction(this, 
 				KeyStroke.getKeyStroke(KeyEvent.VK_1, 0), 
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -74,6 +81,10 @@ public class RandomNumberDialog extends MyDialog {
 		this.setVisible(true);
 	}
 	
+	/**
+	 * Number confirm or mark operation
+	 * @param isSelected true is mark; false is just confirm without mark.
+	 */
 	private void numConfirmPerformed(boolean isSelected) { //true: mark; false: confirm
 		String tmp = String.valueOf(randomNum);
 		JCheckBox jcb = new JCheckBox(tmp);
@@ -86,6 +97,9 @@ public class RandomNumberDialog extends MyDialog {
 		this.dispose();
 	}
 	
+	/**
+	 * Number mark operation
+	 */
 	private void numMarkPerformed() { //true: mark -> selected
 		numConfirmPerformed(true);
 	}

@@ -60,6 +60,9 @@ public class InitializedEnterDialog extends MyDialog {
 		jbConfirm.addActionListener(this);
 		jbCancel.addActionListener(this);
 		
+		/**
+		 * Confirm button associated with enter key
+		 */
 		jbConfirm.registerKeyboardAction(this, 
 				KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), 
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -87,6 +90,9 @@ public class InitializedEnterDialog extends MyDialog {
 		jpSouth.add(jbCancel);
 	}
 	
+	/**
+	 * Confirm button performed action
+	 */
 	private void confirmPerformed() {
 		frame.course = jtfCourse.getText().trim();
 		number = jtfNumber.getText().trim();
