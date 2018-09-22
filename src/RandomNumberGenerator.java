@@ -1,10 +1,12 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -18,10 +20,14 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
-public class RandomNumberGenerator extends JFrame {
+public class RandomNumberGenerator extends JFrame 
+implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
+	private static final int INITIALIZED_ENTER = 0;
+	private static final int SHOW_RANDOM_NUM = 1;
 	private static final int WIDTH = 400;
 	private static final int HEIGHT = 500;
 	String title = "Random";
@@ -37,6 +43,8 @@ public class RandomNumberGenerator extends JFrame {
 	JTextArea jtaCenter = new JTextArea();
 	List<JCheckBox> boxesList = new LinkedList<>();
 	
+	private static Random r = new Random();
+	
 //	private static MyDialog dialog = null;
 
 	public static void main(String args[]) {
@@ -46,13 +54,21 @@ public class RandomNumberGenerator extends JFrame {
 	public void launchFrame() {
 		
 //		Integer i = Integer.parseInt("A"); //NumberFormatException
+		/*
+		while(true) {
+			if(r.nextInt(10) == 0) {
+				System.out.println("0"); //nextInt include 0;
+				break;
+			}
+		}
+		*/
 		
-		new MyDialog(this, "Enter", true); //true -> JFrame will display after this dialog
+		showDialog(INITIALIZED_ENTER);
 		
 		//No input course or number || Close dialog directly || Cancel || praseInt(String) != Integer
 		if(course == null || course.length() == 0 || 
 				number == null || number.length() == 0 ||
-				integerNum == null) {
+				numRange == null) {
 //System.out.println("NULL");
 			System.exit(0); //KIA
 //			return; //not just return
@@ -64,20 +80,27 @@ public class RandomNumberGenerator extends JFrame {
 		this.setLayout(new BorderLayout());
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		southPanel();
-		centerPanel();
 		eastPanel();
+		centerPanel();
+		southPanel();
 		this.add(panelEast, BorderLayout.EAST);
 		this.add(panelSouth, BorderLayout.SOUTH);
+		
+		jbRandom.addActionListener(this);
 		
 		this.setVisible(true);
 		
 	}
 	
+	private void showDialog(int model) {
+		if(model == INITIALIZED_ENTER) {
+			new MyDialog(this, "Enter", true); //true -> JFrame will display after this dialog
+		} else if(model == SHOW_RANDOM_NUM) {
+			new MyDialog(this, false, "Random_Number");
+		}
+	}
+	
 	private void eastPanel() {
-//		boxesList.add(new JCheckBox("all"));
-//		boxesList.add(new JCheckBox("sdfd"));
-//		boxesList.add(new JCheckBox("klkl"));
 		
 		panelEast.setLayout(new BorderLayout());
 //sort from up to down
@@ -97,6 +120,10 @@ public class RandomNumberGenerator extends JFrame {
 	
 	private void centerPanel() { //add directly without support by JPanel
 		add(new JScrollPane(jtaCenter), BorderLayout.CENTER);
+		jtaCenter.setFont(new Font("Cataneo BT", Font.BOLD, 20));
+		jtaCenter.setText("Course:" + course + "\n");
+		jtaCenter.selectAll();
+		jtaCenter.setCaretPosition(jtaCenter.getSelectedText().length()-1);
 	}
 	
 	private void southPanel() {
@@ -107,9 +134,21 @@ public class RandomNumberGenerator extends JFrame {
 		panelSouth.add(jbClear);
 	}
 	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if(e.getSource().equals(jbRandom)) {
+//System.out.println("random");
+			showDialog(SHOW_RANDOM_NUM);
+		} else if(e.getSource().equals(jbLog)) {
+			
+		} else if(e.getSource().equals(jbClear)) {
+			
+		}
+	}
+	
 	String course = null;
 	String number = null;
-	Integer integerNum = null;
+	Integer numRange = null;
 	
 	private class MyDialog extends JDialog 
 	implements ActionListener{ //just implements on JFrame, will throw NullPointerException
@@ -145,6 +184,42 @@ public class RandomNumberGenerator extends JFrame {
 			this.setVisible(true);
 		}
 		
+//		JTextField jtfNum = new JTextField();
+		JLabel jlNum = new JLabel(); //display better than JTF
+		JPanel jpSouthButtons = new JPanel();
+		JButton jbNumConfirm = new JButton("Confirm");
+		JButton jbNumMark = new JButton("Mark");
+		JButton jbNumCancel = new JButton("Cancel");
+		private int randomNum;
+		
+		MyDialog(RandomNumberGenerator frame, boolean modal, String title) {
+			super(frame, title, modal);
+			this.setSize(250, 200);
+			this.setLocationRelativeTo(null);
+			this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+			this.setLayout(new BorderLayout());
+			
+			randomNum = r.nextInt(numRange) + 1; //[0-numRange)
+			
+			jlNum.setFont(new Font("Cataneo BT", Font.BOLD, 70));
+			jlNum.setHorizontalAlignment(SwingConstants.CENTER);
+			jlNum.setText(String.valueOf(randomNum));
+			
+			jpSouthButtons.add(jbNumConfirm);
+			jpSouthButtons.add(jbNumMark);
+			jpSouthButtons.add(jbNumCancel);
+			
+			this.add(jlNum, BorderLayout.CENTER);
+			this.add(jpSouthButtons, BorderLayout.SOUTH);
+			
+			jbNumConfirm.addActionListener(this);
+			jbNumCancel.addActionListener(this);
+			jbNumMark.addActionListener(this);
+			
+			this.setVisible(true);
+		}
+		
+		
 		private void centerPanel() {
 			jpCenter.setLayout(new BorderLayout());
 			jpCenterLeft.setLayout(new GridLayout(2, 1));
@@ -165,7 +240,7 @@ public class RandomNumberGenerator extends JFrame {
 		}
 		
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(ActionEvent e) { //use switch??
 			if(e.getSource().equals(jbConfirm)) {
 				
 				confirmPerformed();
@@ -173,8 +248,14 @@ public class RandomNumberGenerator extends JFrame {
 			} else if(e.getSource().equals(jbCancel)) {
 				course = null;
 				number = null;
-				integerNum = null;
+				numRange = null;
 				this.dispose();
+			} else if(e.getSource().equals(jbNumCancel)) {
+				this.dispose();
+			} else if(e.getSource().equals(jbNumConfirm)) {
+				numConfirmPerformed(false); //false: confirm -> !Selected
+			} else if(e.getSource().equals(jbNumMark)) {
+				numMarkPerformed();
 			}
 		}
 		
@@ -192,16 +273,16 @@ public class RandomNumberGenerator extends JFrame {
 				jtfNumber.requestFocus(true);
 			} else if(number.length() > 0) {
 				try {
-					integerNum = Integer.parseInt(number);
+					numRange = Integer.parseInt(number);
 //System.out.println(intgerNum);
 				} catch(NumberFormatException exception) {
-					integerNum = null;
+					numRange = null;
 					JOptionPane.showMessageDialog(this, "Please input an integer number!", 
 							"Error", JOptionPane.INFORMATION_MESSAGE);
 					jtfNumber.setText("");
 					jtfNumber.requestFocus(true);
 				}
-				if(integerNum != null) {
+				if(numRange != null) {
 					this.dispose();
 				}
 			} else {
@@ -209,6 +290,23 @@ public class RandomNumberGenerator extends JFrame {
 			}
 		}
 		
+		private void numConfirmPerformed(boolean isSelected) { //true: mark; false: confirm
+			String tmp = String.valueOf(randomNum);
+			JCheckBox jcb = new JCheckBox(tmp);
+			boxesList.add(jcb);
+			panelEastCenter.setVisible(false); //hide
+			panelEastCenter.add(jcb); //hide + reappear --> refresh() != repaint();
+			jcb.setSelected(isSelected);
+			panelEastCenter.setVisible(true); //reappear
+			jtaCenter.append("No." + tmp + "\n");
+			this.dispose();
+		}
+		
+		private void numMarkPerformed() { //true: mark -> selected
+			numConfirmPerformed(true);
+		}
+		
 	}
+
 
 }
