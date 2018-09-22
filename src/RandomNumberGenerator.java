@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
@@ -22,6 +23,7 @@ import java.util.Random;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -31,16 +33,17 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
-public class RandomNumberGenerator extends JFrame 
+public class RandomNumberGenerator extends JFrame  
 implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	private static final int INITIALIZED_ENTER = 0;
 	private static final int SHOW_RANDOM_NUM = 1;
 	private static final int LOG_MODEL = 2;
-	private static final int WIDTH = 400;
+	private static final int WIDTH = 460;
 	private static final int HEIGHT = 500;
 	String title = "Random";
 	Color color = Color.LIGHT_GRAY;
@@ -48,10 +51,10 @@ implements ActionListener {
 	JPanel panelEast = new JPanel();
 	JPanel panelEastUp = new JPanel();
 	JPanel panelEastCenter = new JPanel();
-	JButton jbRandom = new JButton("random");
+	JButton jbRandom = new JButton("Alt+1/random");
 //	JButton mark = new JButton("mark");
-	JButton jbLog = new JButton("log");
-	JButton jbShowLog = new JButton("show log");
+	JButton jbLog = new JButton("2:log");
+	JButton jbShowLog = new JButton("3:show log");
 	JButton jbClear = new JButton("clear");
 	JRadioButton jrbSelectAll = new JRadioButton("Select All");
 	JTextArea jtaCenter = new JTextArea();
@@ -116,7 +119,45 @@ implements ActionListener {
 			}
 			
 		});
+
+/*
+ * 1: random 2: log 3: show_log || clear careful		
+ */
+
+/*JButton add keyboard shortcuts*/
+	//i.
+		jbRandom.setMnemonic(KeyEvent.VK_1); //Alt + 1
+//		jbRandom.setMnemonic('1'); //same
 		
+		
+	//ii.
+		/*This method is now obsolete*/
+		//registerKeyboardAction(ActionListener anAction, KeyStroke aKeyStroke, int aCondition)
+		jbLog.registerKeyboardAction(this, //2
+				KeyStroke.getKeyStroke(KeyEvent.VK_2, 0), //0 means only single key
+				JComponent.WHEN_IN_FOCUSED_WINDOW); //when in the focused window
+//				JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+//				JComponent.WHEN_FOCUSED);
+		
+		jbShowLog.registerKeyboardAction(this, 
+				KeyStroke.getKeyStroke(KeyEvent.VK_3, 0), 
+				JComponent.WHEN_IN_FOCUSED_WINDOW);
+		
+		
+		
+	//iii.
+		//InputMap.put(KeyStroke keyStroke, Object actionMapKey)
+		//static KeyStroke getKeyStroke(int keyCode, int modifiers)
+		
+		//ActionMap.put(Object key, Action action) //ActionListener is Action's super interface
+//		jbShowLog.getActionMap().put("showLog", action); //AbstractAction implements Action
+		
+		
+//		jbShowLog.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_3, 0), "show");
+			//Error, Button cannot read keyCode in
+//		jbShowLog.getActionMap().put("show", action); //action must be defined before calling
+		
+
 		eastPanel();
 		centerPanel();
 		southPanel();
@@ -192,12 +233,10 @@ implements ActionListener {
 		panelSouth.add(jbClear);
 	}
 	
-	
-	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource().equals(jbRandom)) {
-//System.out.println("random");
+			//System.out.println("random");
 			showDialog(SHOW_RANDOM_NUM);
 		} else if(e.getSource().equals(jbLog)) {
 			logPerformed(false);
@@ -313,7 +352,7 @@ implements ActionListener {
 							//when click confirm to send message to ActionEvent
 
 		private static final long serialVersionUID = 1L;
-		JButton jbConfirm = new JButton("Confirm");
+		JButton jbConfirm = new JButton("Enter/Confirm");
 		JButton jbCancel = new JButton("Cancel");
 		JLabel jlCourse = new JLabel("Course:");
 		JLabel jlNumber = new JLabel("Number:");
@@ -326,7 +365,7 @@ implements ActionListener {
 		
 		public MyDialog(JFrame frame, String title, boolean modal) {
 			super(frame, title, modal);
-			this.setSize(200, 150);
+			this.setSize(220, 160);
 			this.setLocationRelativeTo(null);
 			this.setDefaultCloseOperation(MyDialog.DISPOSE_ON_CLOSE);
 			
@@ -339,20 +378,24 @@ implements ActionListener {
 			jbConfirm.addActionListener(this);
 			jbCancel.addActionListener(this);
 			
+			jbConfirm.registerKeyboardAction(this, 
+					KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), 
+					JComponent.WHEN_IN_FOCUSED_WINDOW);
+			
 			this.setVisible(true);
 		}
 		
 //		JTextField jtfNum = new JTextField();
 		JLabel jlNum = new JLabel(); //display better than JTF
 		JPanel jpSouthButtons = new JPanel();
-		JButton jbNumConfirm = new JButton("Confirm");
-		JButton jbNumMark = new JButton("Mark");
-		JButton jbNumCancel = new JButton("Cancel");
+		JButton jbNumConfirm = new JButton("1/Confirm");
+		JButton jbNumMark = new JButton("2/Mark");
+		JButton jbNumCancel = new JButton("3/Cancel");
 		private int randomNum;
 		
 		public MyDialog(JFrame frame, boolean modal, String title) {
 			super(frame, title, modal);
-			this.setSize(250, 200);
+			this.setSize(280, 220);
 			this.setLocationRelativeTo(null);
 			this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 			this.setLayout(new BorderLayout());
@@ -373,6 +416,18 @@ implements ActionListener {
 			jbNumConfirm.addActionListener(this);
 			jbNumCancel.addActionListener(this);
 			jbNumMark.addActionListener(this);
+			
+			jbNumConfirm.registerKeyboardAction(this, 
+					KeyStroke.getKeyStroke(KeyEvent.VK_1, 0), 
+					JComponent.WHEN_IN_FOCUSED_WINDOW);
+			
+			jbNumMark.registerKeyboardAction(this, 
+					KeyStroke.getKeyStroke(KeyEvent.VK_2, 0), 
+					JComponent.WHEN_IN_FOCUSED_WINDOW);
+			
+			jbNumCancel.registerKeyboardAction(this, 
+					KeyStroke.getKeyStroke(KeyEvent.VK_3, 0), 
+					JComponent.WHEN_IN_FOCUSED_WINDOW);
 			
 			this.setVisible(true);
 		}
