@@ -19,8 +19,8 @@ public class InitializedEnterDialog extends MyDialog {
 	
 	JLabel jlCourse = new JLabel("Course:");
 	JLabel jlNumber = new JLabel("Number:");
-	JTextField jtfCourse = new JTextField();
-	JTextField jtfNumber = new JTextField();
+	JTextField jtfCourse = new JTextField("Data Structure");
+	JTextField jtfNumber = new JTextField("59");
 	JPanel jpCenter = new JPanel();
 	JPanel jpCenterLeft = new JPanel();
 	JPanel jpCenterRight = new JPanel();

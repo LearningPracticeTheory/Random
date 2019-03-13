@@ -38,6 +38,8 @@ implements ActionListener {
 	 */
 	private static final int MAIN_DIALOG_MODEL = 3;
 
+	private static final int ENTER_NUM_MODEL = 4;
+	
 	String course = null;
 	Integer numRange = null;
 	public boolean logDialogIsActive = false;
@@ -83,7 +85,16 @@ implements ActionListener {
 		if(model == INITIALIZED_ENTER) {
 			return new InitializedEnterDialog(this, "Enter", true); //true -> JFrame will display after this dialog
 		} else if(model == SHOW_RANDOM_NUM) {
-			return new RandomNumberDialog(this, "Random Number Dialog", true);
+			return new RandomNumberDialog(this, "Random Number Dialog", true, RandomNumberDialog.RANDOM_NUMBER);
+		} else if(model == ENTER_NUM_MODEL) {
+			String tmp = mainDialog.jtfEnter.getText();
+			if(tmp.trim().equals("")) {
+				return null;
+			} else {
+				int num = Integer.parseInt(tmp);
+				mainDialog.jtfEnter.setText("");
+				return new RandomNumberDialog(this, "Random Number Dialog", true, num);
+			}
 		} else if(model == SHOW_LOG_MODEL) {
 			if(!logDialogIsActive) {
 				showLogDialog = null;
@@ -112,6 +123,8 @@ implements ActionListener {
 			mainDialog.clearPerformed();
 		} else if(e.getSource().equals(mainDialog.jrbSelectAll)) {
 			mainDialog.selectAllPerformed();
+		} else if(e.getSource().equals(mainDialog.jtfEnter)) {
+			randomNumDialog = (RandomNumberDialog)showDialog(ENTER_NUM_MODEL);
 		}
 	}
 	

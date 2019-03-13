@@ -21,13 +21,14 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 public class MainDialog extends MyDialog {
 
 	private static final long serialVersionUID = 1L;
- 	private static final int WIDTH = 460;
-	private static final int HEIGHT = 500;
+ 	private static final int WIDTH = 500;
+	private static final int HEIGHT = 600;
 	
 	String title = "Random";
 	Color color = Color.LIGHT_GRAY;
@@ -36,10 +37,13 @@ public class MainDialog extends MyDialog {
 	JPanel panelEast = new JPanel();
 	JPanel panelEastUp = new JPanel();
 	JPanel panelEastCenter = new JPanel();
-	JButton jbRandom = new JButton("Alt+1/random");
-	JButton jbLog = new JButton("2:log");
-	JButton jbShowLog = new JButton("3:show log");
+	JButton jbRandom = new JButton("Alt+R/random");
+	JButton jbLog = new JButton("L:log");
+	JButton jbShowLog = new JButton("S:show log");
 	JButton jbClear = new JButton("clear");
+	
+	JTextField jtfEnter = new JTextField();
+	
 	JRadioButton jrbSelectAll = new JRadioButton("Select All");
 	JTextArea jtaCenter = new JTextArea();
 	
@@ -75,7 +79,7 @@ public class MainDialog extends MyDialog {
 		/**
 		 * Random button associated with Alt+1
 		 */
-		jbRandom.setMnemonic(KeyEvent.VK_1); //Alt + 1
+		jbRandom.setMnemonic(KeyEvent.VK_R); //Alt + 1
 		
 	//ii.
 		/*This method is now obsolete*/
@@ -83,11 +87,11 @@ public class MainDialog extends MyDialog {
 		 * Log button associated with VK_2
 		 */
 		jbLog.registerKeyboardAction(this, //2
-				KeyStroke.getKeyStroke(KeyEvent.VK_2, 0), //0 means only single key
+				KeyStroke.getKeyStroke(KeyEvent.VK_L, 0), //0 means only single key
 				JComponent.WHEN_IN_FOCUSED_WINDOW); //when in the focused window
 		
 		jbShowLog.registerKeyboardAction(this, 
-				KeyStroke.getKeyStroke(KeyEvent.VK_3, 0), 
+				KeyStroke.getKeyStroke(KeyEvent.VK_S, 0), 
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
 		
 		eastPanel();
@@ -101,6 +105,7 @@ public class MainDialog extends MyDialog {
 		jbLog.addActionListener(this);
 		jbShowLog.addActionListener(this);
 		jrbSelectAll.addActionListener(this);
+		jtfEnter.addActionListener(this);
 		
 		this.setVisible(true);
 	}
@@ -133,6 +138,7 @@ public class MainDialog extends MyDialog {
 	
 	private void southPanel() {
 		panelSouth.setLayout(new GridLayout(1, 3));
+		panelSouth.add(jtfEnter);
 		panelSouth.add(jbRandom);
 		panelSouth.add(jbLog);
 		panelSouth.add(jbShowLog);

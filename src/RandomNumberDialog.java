@@ -15,6 +15,7 @@ import javax.swing.SwingConstants;
 public class RandomNumberDialog extends MyDialog {
 
 	private static final long serialVersionUID = 1L;
+	public static final int RANDOM_NUMBER = -1;
 	
 	Random r = new Random();
 	
@@ -27,10 +28,16 @@ public class RandomNumberDialog extends MyDialog {
 	JButton jbNumMark = new JButton("2/Mark");
 	
 	private int randomNum;
+
+	/*
+	 * -1: random number, others: enter number
+	 */
+	private int enterNum;
 	
-	public RandomNumberDialog(RandomNumberGenerator frame, String title, boolean modal) {
+	public RandomNumberDialog(RandomNumberGenerator frame, String title, boolean modal, int enterNum) {
 		super(frame, title, modal);
 		this.frame = frame;
+		this.enterNum = enterNum;
 		initDialog(frame, title, modal);
 	}
 	
@@ -46,8 +53,12 @@ public class RandomNumberDialog extends MyDialog {
 		
 		this.setLayout(new BorderLayout());
 		
-		randomNum = r.nextInt(frame.numRange) + 1; //[0-numRange)
-		
+		if(enterNum == RANDOM_NUMBER) {
+			randomNum = r.nextInt(frame.numRange) + 1; //[0-numRange)
+		} else {
+			randomNum = enterNum;
+		}
+			
 		jlNum.setFont(new Font("Cataneo BT", Font.BOLD, 70));
 		jlNum.setHorizontalAlignment(SwingConstants.CENTER);
 		jlNum.setText(String.valueOf(randomNum));
